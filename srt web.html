@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Audio to SRT — Free MP3 to Subtitle Converter</title>
+<meta name="description" content="Convert MP3 and other audio or video files into accurate, perfectly timed SRT subtitles. Free, unlimited and private: runs entirely in your browser." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#fafaf9; --card:#ffffff; --ink:#0c0a09; --ink-2:#44403c; --muted:#78716c;
+    --line:#e7e5e4; --line-2:#d6d3d1; --soft:#f5f5f4; --accent:#0c0a09;
+    --ok:#15803d; --ok-bg:#f0fdf4; --err:#b91c1c; --err-bg:#fef2f2; --hl:#fff7ed; --hl-line:#fdba74;
+    --r:14px; --r-sm:10px; --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:Inter,"Noto Sans Bengali",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--line);background:rgba(250,250,249,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.02em}
+  .logo{width:28px;height:28px;border-radius:8px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+  .logo span{display:block;width:3px;background:#fff;border-radius:2px;margin:0 1px}
+  .pill{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 10px;border-radius:999px;background:#fff}
+
+  .hero{text-align:center;padding:48px 0 28px}
+  .hero h1{font-size:clamp(30px,5vw,46px);letter-spacing:-.035em;margin:0 0 10px;font-weight:700}
+  .hero p{color:var(--muted);margin:0 auto;max-width:600px;font-size:17px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+  .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  .pad{padding:22px}
+  .label{font-size:13px;font-weight:600;color:var(--ink-2);margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hint{font-size:12px;color:var(--muted);font-weight:400}
+
+  /* Dropzone */
+  .drop{display:block;width:100%;overflow:hidden;border:1.5px dashed var(--line-2);border-radius:var(--r);padding:38px 20px;text-align:center;cursor:pointer;transition:.15s;background:var(--soft);position:relative}
+  .drop strong,.drop small{position:relative;pointer-events:none}
+  .drop .ico{pointer-events:none}
+  .drop:hover,.drop.drag{border-color:var(--ink);background:#fff}
+  .drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .drop .ico{width:48px;height:48px;border-radius:12px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 14px}
+  .drop strong{display:block;font-size:16px}
+  .drop small{color:var(--muted)}
+  .file{display:none;align-items:center;gap:14px;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;background:#fff}
+  .file.show{display:flex}
+  .file .ficon{width:42px;height:42px;border-radius:10px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+  .file .meta{flex:1;min-width:0}
+  .file .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file .sub{font-size:13px;color:var(--muted)}
+
+
+  .field{margin-top:16px}
+  select,input[type=text],input[type=password],input[type=number]{width:100%;height:42px;border:1px solid var(--line);border-radius:var(--r-sm);padding:0 12px;background:#fff;outline:none;transition:.15s}
+  select:focus,input:focus,textarea:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(12,10,9,.08)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .check{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink-2);margin-top:12px;cursor:pointer;user-select:none}
+  .check input{width:16px;height:16px;accent-color:var(--ink)}
+  details{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+  summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none;display:flex;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--muted);font-weight:400}
+  details[open] summary::after{content:"–"}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;font-weight:600;font-size:14px;transition:.15s;white-space:nowrap}
+  .btn:hover{border-color:var(--ink)}
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn.primary:hover{background:#292524}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.sm{height:34px;padding:0 13px;font-size:13px}
+  .btn.block{width:100%;height:50px;font-size:15px;margin-top:18px}
+  .iconbtn{border:0;background:transparent;cursor:pointer;color:var(--muted);padding:6px;border-radius:8px;line-height:0}
+  .iconbtn:hover{background:var(--soft);color:var(--ink)}
+
+  /* Progress */
+  .progress{display:none;margin-top:16px}
+  .progress.show{display:block}
+  .bar{height:6px;background:var(--soft);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+  .bar i{display:block;height:100%;width:0;background:var(--ink);transition:width .25s}
+  .bar.indet i{width:35%;animation:indet 1.2s infinite ease-in-out}
+  @keyframes indet{0%{margin-left:-35%}100%{margin-left:100%}}
+  .pmeta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px;gap:10px}
+  .notice{display:none;margin-top:14px;padding:12px 14px;border-radius:var(--r-sm);font-size:14px}
+  .notice.show{display:block}
+  .notice.err{background:var(--err-bg);color:var(--err);border:1px solid #fecaca}
+  .notice.ok{background:var(--ok-bg);color:var(--ok);border:1px solid #bbf7d0}
+  .notice.info{background:var(--soft);color:var(--ink-2);border:1px solid var(--line)}
+
+  /* Results */
+  #results{display:none;margin-top:22px}
+  #results.show{display:block}
+  .rhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .rhead h2{font-size:18px;margin:0;letter-spacing:-.02em}
+  .stats{font-size:13px;color:var(--muted)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .player{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--soft)}
+  .player audio{width:100%;height:40px}
+  .screen{margin-top:12px;background:#111;border-radius:12px;min-height:96px;display:grid;place-items:center;padding:16px;text-align:center}
+  .screen div{color:#fff;font-size:18px;font-weight:500;line-height:1.45;text-shadow:0 1px 2px #000;white-space:pre-line}
+  .screen .ph{color:#78716c;font-size:14px;font-weight:400}
+  .tools{display:flex;gap:10px;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tools input{height:36px;max-width:260px}
+  .cues{max-height:560px;overflow:auto}
+  .cue{display:grid;grid-template-columns:44px 190px 1fr 36px;gap:12px;align-items:start;padding:12px 20px;border-bottom:1px solid var(--line);transition:background .15s}
+  .cue:last-child{border-bottom:0}
+  .cue.active{background:var(--hl);box-shadow:inset 3px 0 0 var(--hl-line)}
+  .cue .n{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);padding-top:8px;cursor:pointer}
+  .cue .n:hover{color:var(--ink)}
+  .times{display:flex;flex-direction:column;gap:4px}
+  .times input{height:30px;font-family:"JetBrains Mono",monospace;font-size:12px;padding:0 8px;border-radius:8px}
+  .times input.bad{border-color:var(--err);background:var(--err-bg)}
+  .cue textarea{width:100%;border:1px solid transparent;border-radius:8px;padding:7px 9px;resize:vertical;min-height:62px;background:transparent;outline:none;line-height:1.45;font-size:15px}
+  .cue textarea:hover{border-color:var(--line)}
+  .cue textarea:focus{background:#fff}
+  .cue .cps{font-size:11px;color:var(--muted);margin-top:2px;padding-left:9px}
+  .cue .cps.warn{color:#c2410c}
+  @media (max-width:700px){.cue{grid-template-columns:1fr 36px}.cue .n{display:none}.times{flex-direction:row;grid-column:1/-1;order:-1}.cue textarea{grid-column:1}}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:40px 0}
+  @media (max-width:760px){.features{grid-template-columns:1fr}}
+  .feature h3{font-size:15px;margin:0 0 6px}
+  .feature p{margin:0;font-size:14px;color:var(--muted)}
+  footer{border-top:1px solid var(--line);padding:28px 0 36px;color:var(--muted);font-size:13px;background:#fff}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .foot .brand{font-size:15px;color:var(--ink)}
+  .copy{display:flex;align-items:center;gap:8px;color:var(--ink-2)}
+  .copy strong{color:var(--ink)}
+  .foot-note{margin-top:14px;text-align:center;font-size:12px}
+
+
+  /* ---------- User guide ---------- */
+  .nav-right{display:flex;align-items:center;gap:10px}
+  .guide-btn{height:36px;padding:0 14px;font-size:13px}
+  .g-overlay{position:fixed;inset:0;z-index:100;background:rgba(12,10,9,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;animation:gfade .18s ease}
+  .g-overlay[hidden]{display:none}
+  @keyframes gfade{from{opacity:0}to{opacity:1}}
+  .g-panel{background:#fff;border-radius:18px;width:100%;max-width:720px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+  .g-head{padding:16px 20px;border-bottom:1px solid var(--line)}
+  .g-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .g-lang{display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--muted)}
+  .g-lang select{height:38px;flex:1}
+  .g-body{overflow:auto;padding:18px 20px;flex:1}
+  .g-sub{margin:0 0 16px;color:var(--muted);font-size:15px}
+  .g-note{margin:0 0 14px;padding:10px 12px;border-radius:10px;background:var(--soft);border:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+  .g-sec{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+  .g-sec h3{margin:0 0 8px;font-size:15px;letter-spacing:-.01em}
+  .g-sec ul{margin:0;padding-inline-start:18px;color:var(--ink-2);font-size:14px;line-height:1.6}
+  .g-sec li{margin:4px 0}
+  .g-quick{background:var(--soft)}
+  .g-quick ul{list-style:none;padding-inline-start:0}
+  .g-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end}
+  .g-panel[dir=rtl] .g-foot{justify-content:flex-start}
+  @media (max-width:640px){
+    .g-overlay{padding:0;align-items:stretch}
+    .g-panel{max-width:none;max-height:none;height:100%;border-radius:0}
+    .g-foot .btn{width:100%}
+  }
+
+  /* ---------- Mobile ---------- */
+  .grid > *{min-width:0}
+  @media (max-width:640px){
+    .wrap{padding:0 14px}
+    .nav{height:56px}
+    .pill{display:none}
+    .hero{padding:30px 0 20px}
+    .hero p{font-size:15px}
+    .pad{padding:16px}
+    .grid{gap:14px}
+    .drop{padding:28px 14px}
+    .drop strong{font-size:15px}
+    select,input[type=text],input[type=password],input[type=number],textarea{font-size:16px}  /* stops iOS zoom */
+    .row3{gap:8px}
+    .row3 .label{font-size:12px}
+    .rhead{padding:14px 16px}
+    .actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+    .actions .btn{width:100%;height:42px}
+    .actions .primary{grid-column:1/-1;order:-1}
+    .player{padding:14px 16px}
+    .screen div{font-size:16px}
+    .tools{padding:12px 16px}
+    .tools .hint:last-child{margin-left:0;width:100%}
+    .cue{padding:12px 16px;gap:8px}
+    .times input{font-size:13px;flex:1}
+    .cues{max-height:none}
+    .features{margin:28px 0;gap:14px}
+    .foot{flex-direction:column;text-align:center}
+  }
+  .kbd{font-family:"JetBrains Mono",monospace;font-size:12px;background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span style="height:10px"></span><span style="height:16px"></span><span style="height:8px"></span></div>
+      Audio&nbsp;to&nbsp;SRT
+    </div>
+    <div class="nav-right">
+      <span class="pill">Private · Free · No sign-up</span>
+      <button class="btn guide-btn" type="button" data-open-guide>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/></svg>
+        User guide
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Convert MP3 to SRT subtitles</h1>
+    <p>Upload an audio or video file and get accurate, perfectly timed subtitles with word-level timing. Edit, preview and download as SRT, VTT or TXT.</p>
+  </section>
+
+  <section class="grid">
+    <!-- LEFT: upload -->
+    <div class="card pad">
+      <p class="label">Audio file <span class="hint">MP3, WAV, M4A, OGG, FLAC, MP4, WEBM</span></p>
+
+      <label class="drop" id="drop">
+        <input type="file" id="fileInput" accept="audio/*,video/*,.mp3,.wav,.m4a,.aac,.ogg,.oga,.opus,.flac,.mp4,.webm,.mov,.mkv" />
+        <div class="ico">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m6 10 6-6 6 6"/><path d="M4 20h16"/></svg>
+        </div>
+        <strong>Click to upload or drag and drop</strong>
+        <small>Free &amp; unlimited · your file never leaves your device</small>
+      </label>
+
+      <div class="file" id="fileCard">
+        <div class="ficon" id="fileExt">MP3</div>
+        <div class="meta">
+          <div class="name" id="fileName">—</div>
+          <div class="sub" id="fileSub">—</div>
+        </div>
+        <button class="iconbtn" id="removeFile" title="Remove file" aria-label="Remove file">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="progress" id="progress">
+        <div class="bar" id="bar"><i id="barFill"></i></div>
+        <div class="pmeta"><span id="pText">Preparing…</span><span id="pPct"></span></div>
+      </div>
+      <div class="notice" id="notice"></div>
+
+      <button class="btn primary block" id="convertBtn" disabled>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h7"/><path d="m17 15 3 3-3 3"/></svg>
+        Generate subtitles
+      </button>
+      <button class="btn block hidden" id="cancelBtn" style="margin-top:10px">Cancel</button>
+    </div>
+
+    <!-- RIGHT: settings -->
+    <div class="card pad">
+      <p class="label" style="font-size:15px;color:var(--ink)">Settings <span class="hint">Optional · the defaults work for most files</span></p>
+      <div class="field" style="margin-top:12px">
+        <p class="label">Spoken language</p>
+        <select id="language"></select>
+        <p class="hint" style="margin:8px 0 0">The tool detects the language and picks the best speech AI for your device automatically.</p>
+      </div>
+
+      <details>
+        <summary>Subtitle format</summary>
+        <div class="field row3">
+          <div><p class="label">Chars / line</p><input type="number" id="maxChars" value="42" min="12" max="80" /></div>
+          <div><p class="label">Lines</p><select id="maxLines"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
+          <div><p class="label">Max sec</p><input type="number" id="maxDur" value="6" min="1" max="15" step="0.5" /></div>
+        </div>
+        <label class="check"><input type="checkbox" id="removeTags" checked /> Remove sound tags like [Music], (laughs)</label>
+        <label class="check"><input type="checkbox" id="bom" checked /> UTF-8 BOM (fixes non-English text in old players)</label>
+      </details>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="card" id="results">
+    <div class="rhead">
+      <div>
+        <h2>Subtitles</h2>
+        <div class="stats" id="stats"></div>
+      </div>
+      <div class="actions">
+        <button class="btn sm" id="copyBtn">Copy SRT</button>
+        <button class="btn sm" id="dlTxt">TXT</button>
+        <button class="btn sm" id="dlVtt">VTT</button>
+        <button class="btn sm primary" id="dlSrt">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m6 10 6 6 6-6"/><path d="M4 20h16"/></svg>
+          Download SRT
+        </button>
+      </div>
+    </div>
+    <div class="player">
+      <audio id="audio" controls preload="metadata"></audio>
+      <div class="screen"><div id="screen"><span class="ph">Press play to preview subtitles</span></div></div>
+    </div>
+    <div class="tools">
+      <span class="hint">Shift all timings</span>
+      <input type="number" id="shiftMs" value="0" step="100" style="width:110px" aria-label="Shift in milliseconds" />
+      <span class="hint">ms</span>
+      <button class="btn sm" id="applyShift">Apply</button>
+      <span class="hint" style="margin-left:auto">Click a number to jump · edit text and times directly</span>
+    </div>
+    <div class="cues" id="cues"></div>
+  </section>
+
+  <section class="features">
+    <div class="feature"><h3>Word-level timing</h3><p>Every subtitle is built from the exact time each word is spoken, so captions appear and disappear in sync.</p></div>
+    <div class="feature"><h3>Broadcast-style lines</h3><p>Lines are balanced, split at natural pauses and punctuation, and never overlap. Customize length and duration.</p></div>
+    <div class="feature"><h3>Free &amp; unlimited</h3><p>No sign-up, no limits, no API key. Everything runs in your browser and your audio is never uploaded.</p></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><span style="height:10px"></span><span style="height:16px"></span><span style="height:8px"></span></div>
+        Audio&nbsp;to&nbsp;SRT
+      </div>
+      <div class="copy">
+        <span>© <span id="year">2026</span> <strong>Rafi Ahmed</strong>. All rights reserved.</span>
+      </div>
+    </div>
+    <p class="foot-note"><a href="#guide" data-open-guide style="color:var(--ink);font-weight:600">Open the user guide</a> · Works best in the latest Chrome or Edge. Press <span class="kbd">Space</span> outside a text box to play or pause.</p>
+  </div>
+</footer>
+
+<script type="module">
+/* ============================================================
+   Audio → SRT converter (single file, no build step required)
+   ============================================================ */
+
+const TRANSFORMERS_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3";
+
+const LANGS = [
+  ["", "Auto-detect (recommended)"], ["en","English"], ["bn","Bengali (বাংলা)"], ["hi","Hindi"], ["ur","Urdu"], ["ar","Arabic"],
+  ["es","Spanish"], ["fr","French"], ["de","German"], ["it","Italian"], ["pt","Portuguese"], ["ru","Russian"],
+  ["tr","Turkish"], ["fa","Persian"], ["id","Indonesian"], ["ms","Malay"], ["ta","Tamil"], ["te","Telugu"],
+  ["mr","Marathi"], ["gu","Gujarati"], ["pa","Punjabi"], ["ne","Nepali"], ["th","Thai"], ["vi","Vietnamese"],
+  ["zh","Chinese"], ["ja","Japanese"], ["ko","Korean"], ["nl","Dutch"], ["pl","Polish"], ["uk","Ukrainian"],
+  ["sv","Swedish"], ["no","Norwegian"], ["da","Danish"], ["fi","Finnish"], ["el","Greek"], ["he","Hebrew"],
+  ["ro","Romanian"], ["cs","Czech"], ["hu","Hungarian"], ["tl","Tagalog"], ["sw","Swahili"]
+];
+
+/* ---------- DOM ---------- */
+const $ = (id) => document.getElementById(id);
+const els = {
+  drop: $("drop"), fileInput: $("fileInput"), fileCard: $("fileCard"), fileName: $("fileName"), fileSub: $("fileSub"),
+  fileExt: $("fileExt"), removeFile: $("removeFile"), convertBtn: $("convertBtn"), cancelBtn: $("cancelBtn"),
+  progress: $("progress"), bar: $("bar"), barFill: $("barFill"), pText: $("pText"), pPct: $("pPct"), notice: $("notice"),
+  language: $("language"),
+  maxChars: $("maxChars"), maxLines: $("maxLines"), maxDur: $("maxDur"), removeTags: $("removeTags"), bom: $("bom"),
+  results: $("results"), stats: $("stats"), cues: $("cues"),
+  audio: $("audio"), screen: $("screen"), shiftMs: $("shiftMs"), applyShift: $("applyShift"),
+  copyBtn: $("copyBtn"), dlSrt: $("dlSrt"), dlVtt: $("dlVtt"), dlTxt: $("dlTxt")
+};
+
+LANGS.forEach(([code, name]) => els.language.add(new Option(name, code)));
+document.getElementById("year").textContent = new Date().getFullYear();
+
+
+
+const state = { file: null, duration: 0, cues: [], cancelled: false, audioUrl: null, words: null };
+
+/* ---------- safe storage ---------- */
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch {} },
+  del(k){ try { localStorage.removeItem(k); } catch {} }
+};
+/* ---------- file handling ---------- */
+const fmtSize = (b) => b > 1048576 ? (b/1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b/1024)) + " KB";
+const fmtClock = (s) => { s = Math.max(0, Math.round(s)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h ? h + ":" + String(m).padStart(2,"0") : m) + ":" + String(x).padStart(2,"0"); };
+
+function setFile(file){
+  if (!file) return;
+  const okType = /^(audio|video)\//.test(file.type) || /\.(mp3|wav|m4a|aac|ogg|oga|opus|flac|mp4|webm|mov|mkv)$/i.test(file.name);
+  if (!okType) { showNotice("err", "That file type isn't supported. Please choose an audio or video file such as MP3, WAV or MP4."); return; }
+  state.file = file;
+  hideNotice();
+  els.fileName.textContent = file.name;
+  els.fileExt.textContent = (file.name.split(".").pop() || "AUD").slice(0,4).toUpperCase();
+  els.fileSub.textContent = fmtSize(file.size) + " · reading length…";
+  els.drop.classList.add("hidden");
+  els.fileCard.classList.add("show");
+  els.convertBtn.disabled = false;
+  startEngine();   // start preparing the speech engine quietly while the user looks at settings
+
+  if (state.audioUrl) URL.revokeObjectURL(state.audioUrl);
+  state.audioUrl = URL.createObjectURL(file);
+  els.audio.src = state.audioUrl;
+  const probe = new Audio();
+  probe.preload = "metadata";
+  probe.onloadedmetadata = () => { state.duration = probe.duration || 0; els.fileSub.textContent = fmtSize(file.size) + (isFinite(state.duration) && state.duration ? " · " + fmtClock(state.duration) : ""); };
+  probe.onerror = () => { els.fileSub.textContent = fmtSize(file.size); };
+  probe.src = state.audioUrl;
+}
+function clearFile(){
+  state.file = null; els.fileInput.value = "";
+  els.fileCard.classList.remove("show"); els.drop.classList.remove("hidden");
+  els.convertBtn.disabled = true; hideNotice();
+}
+els.fileInput.addEventListener("change", e => setFile(e.target.files[0]));
+els.removeFile.addEventListener("click", clearFile);
+["dragenter","dragover"].forEach(ev => els.drop.addEventListener(ev, e => { e.preventDefault(); els.drop.classList.add("drag"); }));
+["dragleave","drop"].forEach(ev => els.drop.addEventListener(ev, e => { e.preventDefault(); els.drop.classList.remove("drag"); }));
+els.drop.addEventListener("drop", e => setFile(e.dataTransfer.files[0]));
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => e.preventDefault());
+
+/* ---------- UI helpers ---------- */
+function showNotice(kind, msg){ els.notice.className = "notice show " + kind; els.notice.textContent = msg; }
+function hideNotice(){ els.notice.className = "notice"; }
+function setProgress(text, pct){
+  els.progress.classList.add("show");
+  els.pText.textContent = text;
+  if (pct == null) { els.bar.classList.add("indet"); els.barFill.style.width = ""; els.pPct.textContent = ""; }
+  else { els.bar.classList.remove("indet"); els.barFill.style.width = Math.min(100, pct) + "%"; els.pPct.textContent = Math.round(pct) + "%"; }
+}
+function setBusy(b){
+  els.convertBtn.disabled = b || !state.file;
+  els.convertBtn.classList.toggle("hidden", b);
+  els.cancelBtn.classList.toggle("hidden", !b);
+  els.removeFile.disabled = b;
+  if (!b) els.progress.classList.remove("show");
+}
+
+/* ---------- audio decoding (any format → 16 kHz mono) ---------- */
+async function decodeTo16kMono(file){
+  const buf = await file.arrayBuffer();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC();
+  let decoded;
+  try { decoded = await ctx.decodeAudioData(buf); }
+  catch { throw new Error("Your browser couldn't decode this file. Try converting it to MP3 or WAV first."); }
+  finally { ctx.close && ctx.close(); }
+  const length = Math.ceil(decoded.duration * 16000);
+  const off = new OfflineAudioContext(1, length, 16000);
+  const src = off.createBufferSource();
+  src.buffer = decoded; src.connect(off.destination); src.start();
+  const rendered = await off.startRendering();
+  state.duration = decoded.duration;
+  return rendered.getChannelData(0);
+}
+
+/* ---------- Speech engine: picks its model automatically, loads quietly in the background ---------- */
+const WORKER_SRC = `
+let T = null, pipe = null, device = null, modelId = null;
+const post = (m) => self.postMessage(m);
+async function hasWebGPU(){
+  try { if (!self.navigator || !navigator.gpu) return false; return !!(await navigator.gpu.requestAdapter()); } catch { return false; }
+}
+function dtypeFor(model, dev){
+  if (dev === "webgpu") return { encoder_model: "fp32", decoder_model_merged: "q4" };
+  return /small/.test(model) ? { encoder_model: "q8", decoder_model_merged: "q8" } : { encoder_model: "fp32", decoder_model_merged: "q8" };
+}
+async function load(model, dev){
+  if (!T) { T = await import(${JSON.stringify(TRANSFORMERS_URL)}); T.env.allowLocalModels = false; }
+  pipe = await T.pipeline("automatic-speech-recognition", model, {
+    device: dev, dtype: dtypeFor(model, dev), progress_callback: (p) => post({ type: "progress", data: p })
+  });
+  device = dev; modelId = model;
+}
+async function loadBest(model){
+  const devs = (await hasWebGPU()) ? ["webgpu", "wasm"] : ["wasm"];
+  let err = null;
+  for (const d of devs) { try { await load(model, d); return; } catch (e) { err = e; pipe = null; } }
+  throw err;
+}
+async function transcribe(audio, language){
+  const base = { chunk_length_s: 30, stride_length_s: 5, task: "transcribe" };
+  if (language) base.language = language;
+  try { const out = await pipe(audio, { ...base, return_timestamps: "word" }); return { mode: "word", out }; }
+  catch (e) { const out = await pipe(audio, { ...base, return_timestamps: true }); return { mode: "segment", out }; }
+}
+self.onmessage = async ({ data }) => {
+  if (data.cmd === "load") {
+    try { if (!pipe) await loadBest(data.model); post({ type: "ready", device }); }
+    catch (e) { post({ type: "load-error", message: (e && e.message) || String(e) }); }
+    return;
+  }
+  if (data.cmd === "run") {
+    try {
+      post({ type: "status", text: "Transcribing…" });
+      let r;
+      try { r = await transcribe(data.audio, data.language); }
+      catch (e) {
+        if (device !== "webgpu") throw e;
+        post({ type: "status", text: "Switching to a safer mode…" });   // GPU hiccup → retry on CPU
+        await load(modelId, "wasm");
+        r = await transcribe(data.audio, data.language);
+      }
+      post({ type: "done", mode: r.mode, chunks: r.out.chunks || [], text: r.out.text || "" });
+    } catch (e) { post({ type: "error", message: (e && e.message) || String(e) }); }
+  }
+};
+`;
+
+// Best model for this device: most accurate on computers, lighter on phones / low-memory devices
+const IS_PHONE = window.matchMedia("(max-width: 640px)").matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const LOW_MEM = navigator.deviceMemory && navigator.deviceMemory <= 4;
+const MODEL = (IS_PHONE || LOW_MEM) ? "Xenova/whisper-base" : "Xenova/whisper-small";
+
+const engine = { worker: null, ready: false, loading: null, files: {}, pct: 0, onProgress: null, job: null };
+
+function startEngine(){
+  if (engine.loading) return engine.loading;
+  const url = URL.createObjectURL(new Blob([WORKER_SRC], { type: "text/javascript" }));
+  const w = new Worker(url, { type: "module" });
+  engine.worker = w; engine.files = {}; engine.pct = 0; engine.ready = false;
+  engine.loading = new Promise((resolve, reject) => {
+    w.onmessage = ({ data }) => {
+      if (data.type === "progress") {
+        const p = data.data;
+        if (p.status === "progress" && p.total) {
+          engine.files[p.file] = { loaded: p.loaded, total: p.total };
+          let L = 0, Tt = 0; Object.values(engine.files).forEach(f => { L += f.loaded; Tt += f.total; });
+          engine.pct = Tt ? (L / Tt) * 100 : 0;
+          engine.onProgress && engine.onProgress(engine.pct);
+        }
+      } else if (data.type === "ready") { engine.ready = true; URL.revokeObjectURL(url); resolve(); }
+      else if (data.type === "load-error") { resetEngine(); reject(new Error(data.message)); }
+      else if (engine.job) engine.job(data);
+    };
+    w.onerror = (e) => { resetEngine(); reject(new Error(e.message || "The speech engine could not start. Check your internet connection.")); };
+  });
+  engine.loading.catch(() => {});   // background failures stay silent; they're reported when the user converts
+  w.postMessage({ cmd: "load", model: MODEL });
+  return engine.loading;
+}
+function resetEngine(){
+  if (engine.worker) engine.worker.terminate();
+  Object.assign(engine, { worker: null, ready: false, loading: null, job: null, onProgress: null });
+}
+
+// Is the model already saved in this browser? (then preparing it costs no data)
+async function modelCached(){
+  try {
+    if (!("caches" in window)) return false;
+    const c = await caches.open("transformers-cache");
+    const keys = await c.keys();
+    return keys.some(r => r.url.includes(MODEL.split("/")[1]));
+  } catch { return false; }
+}
+// Prepare quietly: right away on computers or when already saved; on phones, once a file is chosen (saves mobile data)
+const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1200));
+idle(async () => { if (!IS_PHONE || await modelCached()) startEngine(); });
+
+async function runWhisper(audio, language){
+  if (!engine.ready) {
+    const show = (pct) => setProgress("Preparing the speech engine (first time only)…", pct > 0 ? pct : null);
+    engine.onProgress = show; show(engine.pct);
+    try { await startEngine(); }
+    catch (e) { await new Promise(r => setTimeout(r, 300)); await startEngine(); }   // one retry
+    engine.onProgress = null;
+  }
+  return new Promise((resolve, reject) => {
+    let timer = null;
+    const stop = () => { if (timer) clearInterval(timer); engine.job = null; };
+    engine.job = (data) => {
+      if (data.type === "status") {
+        setProgress(data.text, null);
+        if (!timer) { const t0 = Date.now(); timer = setInterval(() => { els.pPct.textContent = fmtClock((Date.now() - t0) / 1000) + " elapsed"; }, 1000); }
+      } else if (data.type === "done") { stop(); resolve(data); }
+      else if (data.type === "error") { stop(); reject(new Error(data.message)); }
+    };
+    engine.worker.postMessage({ cmd: "run", audio, language }, [audio.buffer]);
+  });
+}
+
+/* ---------- Language detection from the transcript ---------- */
+const LANG_NAME = Object.fromEntries(LANGS);
+function detectLanguage(text){
+  const t = text || "";
+  const count = (re) => (t.match(re) || []).length;
+  const scripts = [
+    ["bn", /[ঀ-৿]/g], ["hi", /[ऀ-ॿ]/g], ["ta", /[஀-௿]/g], ["te", /[ఀ-౿]/g],
+    ["gu", /[઀-૿]/g], ["pa", /[਀-੿]/g], ["th", /[฀-๿]/g], ["ko", /[가-힯]/g],
+    ["ja", /[぀-ヿ]/g], ["zh", /[一-鿿]/g], ["el", /[Ͱ-Ͽ]/g], ["he", /[֐-׿]/g],
+    ["ar", /[؀-ۿ]/g], ["ru", /[Ѐ-ӿ]/g]
+  ];
+  let best = null, bestN = 0;
+  scripts.forEach(([c, re]) => { const n = count(re); if (n > bestN) { best = c; bestN = n; } });
+  const latin = count(/[A-Za-zÀ-ÿ]/g);
+  if (best && bestN >= latin) {
+    if (best === "ja" || (best === "zh" && count(/[぀-ヿ]/g))) return "ja";
+    if (best === "ar") return count(/[ٹڈڑںےۓ]/g) ? "ur" : (count(/[پچژگ]/g) ? "fa" : "ar");
+    if (best === "ru") return count(/[іїєґ]/gi) ? "uk" : "ru";
+    return best;
+  }
+  if (!latin) return "";
+  const words = t.toLowerCase().match(/[a-zà-ÿ']+/g) || [];
+  const SW = {
+    en: "the and is are you to of it that this was for with have not on what we they i", es: "el la que de y los las es en por un una para con no se lo",
+    fr: "le la les et est de des un une que je vous pas pour dans ce il", de: "der die das und ist nicht ich du sie wir ein eine zu mit auf",
+    pt: "o a os as que de e não um uma para com é você em do da", it: "il la che di e non un una per con sono è mi ti lo",
+    id: "yang dan di ini itu tidak saya kamu ada untuk dengan ke dari", tr: "ve bir bu da de ne için ben sen çok var değil mi",
+    nl: "de het een en is van niet ik je dat op te zijn"
+  };
+  let lang = "en", score = 0;
+  Object.entries(SW).forEach(([c, list]) => { const set = new Set(list.split(" ")); const s = words.filter(w => set.has(w)).length; if (s > score) { score = s; lang = c; } });
+  return lang;
+}
+
+/* ---------- word normalisation ---------- */
+const TAG_RE = /^\s*[\[\(][^\]\)]*[\]\)]\s*$/;
+const INLINE_TAG_RE = /[\[\(][^\]\)]{0,40}[\]\)]/g;
+
+function wordsFromWhisper(result, removeTags){
+  const chunks = result.chunks || [];
+  const words = [];
+  const end0 = (c, i) => {
+    const e = c.timestamp && c.timestamp[1];
+    if (e != null && isFinite(e)) return e;
+    const nx = chunks[i+1] && chunks[i+1].timestamp && chunks[i+1].timestamp[0];
+    return nx != null ? nx : state.duration || (c.timestamp[0] + 1);
+  };
+  if (result.mode === "word") {
+    chunks.forEach((c, i) => {
+      const text = (c.text || "").trim();
+      if (!text) return;
+      words.push({ text, start: c.timestamp[0], end: end0(c, i) });
+    });
+  } else {
+    // sentence timestamps → spread across words by character length
+    chunks.forEach((c, i) => {
+      let text = (c.text || "").trim();
+      if (removeTags) text = text.replace(INLINE_TAG_RE, " ").trim();
+      if (!text) return;
+      const s = c.timestamp[0], e = Math.max(end0(c, i), s + 0.3);
+      const parts = splitTokens(text);
+      const total = parts.reduce((a, p) => a + p.length + 1, 0);
+      let t = s;
+      parts.forEach(p => { const d = (e - s) * (p.length + 1) / total; words.push({ text: p, start: t, end: t + d }); t += d; });
+    });
+  }
+  return cleanWords(words, removeTags);
+}
+
+// For scripts without spaces (Chinese, Japanese, Thai…) split per character group
+const NOSPACE = /[぀-ヿ㐀-䶿一-鿿豈-﫿฀-๿က-႟ក-៿]/;
+function splitTokens(text){
+  if (NOSPACE.test(text) && !/\s/.test(text.trim())) return Array.from(text.matchAll(/[\s\S]{1,2}/g), m => m[0]);
+  return text.split(/\s+/).filter(Boolean);
+}
+
+function cleanWords(words, removeTags){
+  let out = words.filter(w => w.text && isFinite(w.start));
+  if (removeTags) out = out.filter(w => !TAG_RE.test(w.text) && !/^[♪♫\-–—]+$/.test(w.text));
+  // ensure monotonic, non-negative times
+  let prev = 0;
+  out.forEach(w => {
+    w.start = Math.max(prev, w.start, 0);
+    w.end = Math.max(w.end, w.start + 0.05);
+    prev = w.start;
+  });
+  // drop Whisper repetition loops: same phrase of 1–6 words repeated > 3 times in a row
+  return dedupeLoops(out);
+}
+function dedupeLoops(words){
+  const norm = w => w.text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  for (let n = 1; n <= 6; n++) {
+    const res = [];
+    let i = 0;
+    while (i < words.length) {
+      let reps = 1;
+      const key = words.slice(i, i+n).map(norm).join(" ");
+      while (key && i + (reps+1)*n <= words.length && words.slice(i+reps*n, i+(reps+1)*n).map(norm).join(" ") === key) reps++;
+      if (reps > 3) { res.push(...words.slice(i, i+n*2)); i += reps*n; }
+      else { res.push(words[i]); i++; }
+    }
+    words = res;
+  }
+  return words;
+}
+
+/* ---------- cue building ---------- */
+const NOSPACE_CHAR = /[぀-ヿ㐀-䶿一-鿿豈-﫿฀-๿]/;
+function joinWords(ws){
+  let s = "";
+  ws.forEach(w => {
+    const t = w.text;
+    if (!s) { s = t; return; }
+    const noSpace = /^[,.!?;:%)\]}…।、。，！？」』]/.test(t) || /[(\[{¿¡「『]$/.test(s) ||
+                    (NOSPACE_CHAR.test(s.slice(-1)) && NOSPACE_CHAR.test(t[0])) || /^'(s|t|re|ve|ll|d|m)\b/i.test(t);
+    s += (noSpace ? "" : " ") + t;
+  });
+  return s.replace(/\s+/g, " ").trim();
+}
+
+function wrapLines(text, maxChars, maxLines){
+  if (text.length <= maxChars || maxLines === 1) return text;
+  const hasSpaces = /\s/.test(text);
+  if (maxLines === 2) {
+    // best balanced split, prefer after punctuation
+    let best = null;
+    for (let i = 1; i < text.length; i++) {
+      const ok = hasSpaces ? text[i] === " " : true;
+      if (!ok) continue;
+      const a = text.slice(0, i).trim(), b = text.slice(i).trim();
+      if (!a || !b) continue;
+      let score = Math.max(a.length, b.length) * 2 + Math.abs(a.length - b.length) * 0.5;
+      if (/[,.!?;:…।、。，]$/.test(a)) score -= 6;
+      if (Math.max(a.length, b.length) > maxChars) score += 1000;
+      if (!best || score < best.score) best = { score, a, b };
+    }
+    return best ? best.a + "\n" + best.b : text;
+  }
+  // 3 lines: greedy
+  const tokens = hasSpaces ? text.split(" ") : Array.from(text);
+  const lines = [""];
+  tokens.forEach(t => {
+    const cur = lines[lines.length - 1];
+    const cand = cur ? cur + (hasSpaces ? " " : "") + t : t;
+    if (cand.length > maxChars && cur && lines.length < maxLines) lines.push(t);
+    else lines[lines.length - 1] = cand;
+  });
+  return lines.join("\n");
+}
+
+function buildCues(words, opt){
+  const { maxChars, maxLines, maxDur } = opt;
+  const maxTotal = maxChars * maxLines;
+  const GAP = 0.6, MIN_DUR = 0.9, MIN_GAP = 0.04;
+  const cues = [];
+  let cur = [];
+  const flush = () => { if (cur.length) { cues.push(cur); cur = []; } };
+
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+    if (cur.length) {
+      const last = cur[cur.length - 1];
+      const candLen = joinWords([...cur, w]).length;
+      const tooLong = candLen > maxTotal;
+      const tooSlow = w.end - cur[0].start > maxDur;
+      const pause = w.start - last.end > GAP;
+      if (tooLong || tooSlow || pause) flush();
+    }
+    cur.push(w);
+    const len = joinWords(cur).length;
+    if (/[.!?…।。！？]["'”’)]?$/.test(w.text) && !/^(mr|mrs|ms|dr|st|vs|etc|e\.g|i\.e|jr|sr|prof)\.$/i.test(w.text)) flush();
+    else if (/[,;:，、]["'”’)]?$/.test(w.text) && len > maxTotal * 0.65) flush();
+  }
+  flush();
+
+  // balance: when a cue was cut mid-sentence and the next one is a short leftover,
+  // move words forward so both read naturally (e.g. "…that are" / "perfectly timed.")
+  const SENT_END = /[.!?…।。！？]["'”’)]?$/;
+  for (let i = 1; i < cues.length; i++) {
+    const prev = cues[i-1], c = cues[i];
+    if (prev.length < 3 || SENT_END.test(prev[prev.length-1].text)) continue;
+    if (c[0].start - prev[prev.length-1].end > GAP) continue;
+    let moved = 0;
+    while (prev.length > 2 && moved < 6) {
+      const pl = joinWords(prev).length, cl = joinWords(c).length;
+      if (cl >= pl * 0.6) break;
+      const w = prev[prev.length-1];
+      if (/[,;:，、]$/.test(w.text) && moved > 0) break;          // stop at a natural pause
+      const cand = [w, ...c];
+      if (joinWords(cand).length > maxTotal || c[c.length-1].end - w.start > maxDur) break;
+      c.unshift(prev.pop()); moved++;
+    }
+    // never leave a dangling function word at the end of a cue
+    while (prev.length > 2 && /^(a|an|the|to|of|and|or|but|in|into|on|at|for|from|with|by|is|my|your|our|their|this|that)$/i.test(prev[prev.length-1].text)) {
+      const cand = [prev[prev.length-1], ...c];
+      if (joinWords(cand).length > maxTotal || c[c.length-1].end - cand[0].start > maxDur) break;
+      c.unshift(prev.pop());
+    }
+  }
+
+  const out = cues.filter(c => c.length).map(c => ({
+    start: c[0].start,
+    end: c[c.length-1].end,
+    text: wrapLines(joinWords(c), maxChars, maxLines)
+  }));
+
+  // timing polish: minimum duration, no overlaps, small gap between cues
+  for (let i = 0; i < out.length; i++) {
+    const c = out[i], next = out[i+1];
+    const limit = next ? next.start - MIN_GAP : Infinity;
+    if (c.end - c.start < MIN_DUR) c.end = Math.min(c.start + MIN_DUR, limit);
+    // hold short readable linger (up to 0.4s) if there's silence after
+    c.end = Math.min(Math.max(c.end, Math.min(c.end + 0.25, limit)), limit);
+    if (c.end <= c.start) c.end = c.start + 0.2;
+    if (state.duration && c.end > state.duration + 0.5) c.end = Math.max(c.start + 0.2, state.duration);
+  }
+  return out;
+}
+
+/* ---------- formats ---------- */
+function ts(sec, sep){
+  sec = Math.max(0, sec);
+  let ms = Math.round(sec * 1000);
+  const h = Math.floor(ms / 3600000); ms -= h * 3600000;
+  const m = Math.floor(ms / 60000);  ms -= m * 60000;
+  const s = Math.floor(ms / 1000);   ms -= s * 1000;
+  return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0") + sep + String(ms).padStart(3,"0");
+}
+function parseTs(str){
+  const m = String(str).trim().match(/^(?:(\d+):)?(\d{1,2}):(\d{1,2})(?:[,.](\d{1,3}))?$/);
+  if (!m) return null;
+  return (+(m[1]||0))*3600 + (+m[2])*60 + (+m[3]) + (m[4] ? +m[4].padEnd(3,"0")/1000 : 0);
+}
+const validCues = () => state.cues.filter(c => c.text.trim()).sort((a,b) => a.start - b.start);
+const toSRT = () => validCues().map((c,i) => (i+1) + "\n" + ts(c.start, ",") + " --> " + ts(c.end, ",") + "\n" + c.text.trim()).join("\n\n") + "\n";
+const toVTT = () => "WEBVTT\n\n" + validCues().map((c,i) => (i+1) + "\n" + ts(c.start, ".") + " --> " + ts(c.end, ".") + "\n" + c.text.trim()).join("\n\n") + "\n";
+const toTXT = () => validCues().map(c => c.text.replace(/\n/g, " ").trim()).join("\n") + "\n";
+
+function download(content, ext, mime){
+  const base = (state.file ? state.file.name.replace(/\.[^.]+$/, "") : "subtitles");
+  const bom = (ext !== "vtt" && els.bom.checked) ? "﻿" : "";
+  const blob = new Blob([bom + content], { type: mime + ";charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = base + "." + ext;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+/* ---------- render editor ---------- */
+function esc(s){ return s.replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c])); }
+function cpsInfo(c){
+  const chars = c.text.replace(/\s/g, "").length, d = Math.max(0.001, c.end - c.start);
+  const cps = chars / d;
+  return { cls: cps > 20 ? "cps warn" : "cps", txt: (d).toFixed(1) + "s · " + cps.toFixed(0) + " chars/s" + (cps > 20 ? " (fast)" : "") };
+}
+function renderCues(){
+  els.cues.innerHTML = state.cues.map((c, i) => {
+    const k = cpsInfo(c);
+    return `<div class="cue" data-i="${i}">
+      <div class="n" title="Jump to this subtitle">#${i+1}</div>
+      <div class="times">
+        <input type="text" data-f="start" value="${ts(c.start, ",")}" aria-label="Start time" />
+        <input type="text" data-f="end" value="${ts(c.end, ",")}" aria-label="End time" />
+      </div>
+      <div><textarea rows="2" aria-label="Subtitle text">${esc(c.text)}</textarea><div class="${k.cls}">${k.txt}</div></div>
+      <button class="iconbtn" data-del title="Delete subtitle" aria-label="Delete subtitle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+      </button>
+    </div>`;
+  }).join("");
+  updateStats();
+}
+function updateStats(){
+  const v = validCues();
+  const words = v.reduce((a, c) => a + c.text.split(/\s+/).filter(Boolean).length, 0);
+  const L = state.lang && state.lang.code ? " · " + (LANG_NAME[state.lang.code] || state.lang.code).replace(/ \(.*\)$/, "") + (state.lang.auto ? " (auto-detected)" : "") : "";
+  els.stats.textContent = v.length + " subtitles · " + words + " words · " + fmtClock(state.duration || (v.length ? v[v.length-1].end : 0)) + L;
+}
+els.cues.addEventListener("input", e => {
+  const row = e.target.closest(".cue"); if (!row) return;
+  const c = state.cues[+row.dataset.i];
+  if (e.target.tagName === "TEXTAREA") {
+    c.text = e.target.value;
+    const k = cpsInfo(c); const el = row.querySelector(".cps, .cps.warn"); el.className = k.cls; el.textContent = k.txt;
+    updateStats();
+  }
+});
+els.cues.addEventListener("change", e => {
+  const row = e.target.closest(".cue"); if (!row || e.target.tagName !== "INPUT") return;
+  const c = state.cues[+row.dataset.i], f = e.target.dataset.f, v = parseTs(e.target.value);
+  const other = f === "start" ? c.end : c.start;
+  const valid = v != null && (f === "start" ? v < other : v > other);
+  e.target.classList.toggle("bad", !valid);
+  if (valid) { c[f] = v; e.target.value = ts(v, ","); const k = cpsInfo(c); const el = row.querySelector("[class^=cps]"); el.className = k.cls; el.textContent = k.txt; }
+});
+els.cues.addEventListener("click", e => {
+  const row = e.target.closest(".cue"); if (!row) return;
+  const i = +row.dataset.i;
+  if (e.target.closest("[data-del]")) { state.cues.splice(i, 1); renderCues(); return; }
+  if (e.target.closest(".n")) { els.audio.currentTime = state.cues[i].start + 0.01; els.audio.play().catch(()=>{}); }
+});
+
+/* live preview + highlight */
+let activeIdx = -1;
+els.audio.addEventListener("timeupdate", () => {
+  const t = els.audio.currentTime;
+  const i = state.cues.findIndex(c => t >= c.start && t < c.end);
+  if (i !== activeIdx) {
+    const rows = els.cues.children;
+    if (rows[activeIdx]) rows[activeIdx].classList.remove("active");
+    if (rows[i]) {
+      rows[i].classList.add("active");
+      const box = els.cues, r = rows[i];
+      if (r.offsetTop < box.scrollTop || r.offsetTop + r.offsetHeight > box.scrollTop + box.clientHeight)
+        box.scrollTo({ top: r.offsetTop - box.clientHeight / 3, behavior: "smooth" });
+    }
+    activeIdx = i;
+  }
+  if (i >= 0) els.screen.textContent = state.cues[i].text;
+  else els.screen.innerHTML = '<span class="ph">&nbsp;</span>';
+});
+document.addEventListener("keydown", e => {
+  if (e.code === "Space" && state.cues.length && !/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName)) {
+    e.preventDefault(); els.audio.paused ? els.audio.play() : els.audio.pause();
+  }
+});
+
+els.applyShift.addEventListener("click", () => {
+  const ms = parseFloat(els.shiftMs.value) || 0; if (!ms) return;
+  state.cues.forEach(c => { c.start = Math.max(0, c.start + ms/1000); c.end = Math.max(c.start + 0.1, c.end + ms/1000); });
+  els.shiftMs.value = 0; renderCues();
+});
+
+/* rebuild cues live when format settings change (no re-transcription needed) */
+function rebuildFromWords(){
+  if (!state.words) return;
+  state.cues = buildCues(state.words, getOpts());
+  renderCues();
+}
+[els.maxChars, els.maxLines, els.maxDur].forEach(el => el.addEventListener("change", rebuildFromWords));
+function getOpts(){
+  const clamp = (v, a, b, d) => { v = parseFloat(v); return isFinite(v) ? Math.min(b, Math.max(a, v)) : d; };
+  return { maxChars: clamp(els.maxChars.value, 12, 80, 42), maxLines: clamp(els.maxLines.value, 1, 3, 2), maxDur: clamp(els.maxDur.value, 1, 15, 6) };
+}
+
+/* exports */
+const guard = (fn) => () => { if (!validCues().length) { showNotice("err", "There are no subtitles to export yet."); return; } fn(); };
+els.dlSrt.addEventListener("click", guard(() => download(toSRT(), "srt", "application/x-subrip")));
+els.dlVtt.addEventListener("click", guard(() => download(toVTT(), "vtt", "text/vtt")));
+els.dlTxt.addEventListener("click", guard(() => download(toTXT(), "txt", "text/plain")));
+els.copyBtn.addEventListener("click", guard(async () => {
+  try { await navigator.clipboard.writeText(toSRT()); els.copyBtn.textContent = "Copied ✓"; }
+  catch { const ta = document.createElement("textarea"); ta.value = toSRT(); document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); els.copyBtn.textContent = "Copied ✓"; }
+  setTimeout(() => els.copyBtn.textContent = "Copy SRT", 1600);
+}));
+
+/* ---------- main flow ---------- */
+els.cancelBtn.addEventListener("click", () => {
+  state.cancelled = true;
+  resetEngine();
+  setBusy(false); showNotice("info", "Cancelled.");
+  setTimeout(startEngine, 500);   // get ready again quietly (loads from the browser's saved copy)
+});
+
+els.convertBtn.addEventListener("click", async () => {
+  if (!state.file) return;
+  hideNotice(); state.cancelled = false; setBusy(true);
+  const removeTags = els.removeTags.checked;
+  const language = els.language.value;
+  const t0 = performance.now();
+  try {
+    let words;
+    if (state.duration > 3600) showNotice("info", "Long file detected. It may take a while; keep this tab open until it finishes.");
+    setProgress("Reading audio…", null);
+    const audio = await decodeTo16kMono(state.file);
+    if (state.cancelled) return;
+    if (!audio.length || audio.every(v => v === 0)) throw new Error("This file seems to contain no audible sound.");
+    const result = await runWhisper(audio, language);
+    if (state.cancelled) return;
+    words = wordsFromWhisper(result, removeTags);
+    if (!words.length) throw new Error("No speech was detected in this file. If it has speech, try choosing the spoken language in Settings.");
+    state.words = words;
+    state.lang = language
+      ? { code: language, auto: false }
+      : { code: detectLanguage(words.map(w => w.text).join(" ")), auto: true };
+    state.cues = buildCues(words, getOpts());
+    renderCues();
+    els.results.classList.add("show");
+    setBusy(false);
+    showNotice("ok", "Done in " + fmtClock((performance.now() - t0) / 1000) + ". Review the subtitles below, then download your SRT.");
+    els.results.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (err) {
+    if (state.cancelled) return;
+    setBusy(false);
+    let msg = err && err.message ? err.message : String(err);
+    if (/Failed to fetch|NetworkError|Load failed/i.test(msg)) msg = "Network error. Please check your internet connection. It is needed the first time the tool prepares itself.";
+    showNotice("err", msg);
+    console.error(err);
+  }
+});
+</script>
+<!-- ================= USER GUIDE ================= -->
+<div class="g-overlay" id="guide" role="dialog" aria-modal="true" aria-labelledby="gTitle" hidden>
+  <div class="g-panel">
+    <div class="g-head">
+      <div class="g-top">
+        <div class="brand"><div class="logo" aria-hidden="true"><span style="height:10px"></span><span style="height:16px"></span><span style="height:8px"></span></div><span id="gTitle">User guide</span></div>
+        <button class="iconbtn" id="gClose" aria-label="Close guide">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="g-lang">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+        <select id="gLang" aria-label="Guide language">
+          <optgroup label="Built-in">
+            <option value="en">English</option>
+            <option value="bn">বাংলা (Bangla)</option>
+            <option value="hi">हिन्दी (Hindi)</option>
+            <option value="ar">العربية (Arabic)</option>
+            <option value="es">Español (Spanish)</option>
+          </optgroup>
+          <optgroup label="More languages (Google Translate)">
+            <option value="gt:ur">اردو (Urdu)</option>
+            <option value="gt:fr">Français</option>
+            <option value="gt:de">Deutsch</option>
+            <option value="gt:pt">Português</option>
+            <option value="gt:id">Bahasa Indonesia</option>
+            <option value="gt:ms">Bahasa Melayu</option>
+            <option value="gt:tr">Türkçe</option>
+            <option value="gt:ru">Русский</option>
+            <option value="gt:fa">فارسی</option>
+            <option value="gt:ta">தமிழ்</option>
+            <option value="gt:ne">नेपाली</option>
+            <option value="gt:zh-CN">中文</option>
+            <option value="gt:ja">日本語</option>
+            <option value="gt:ko">한국어</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+    <div class="g-body" id="gBody"></div>
+    <div class="g-foot"><button class="btn primary" id="gDone">Got it</button></div>
+  </div>
+</div>
+
+<script type="module">
+/* ---------- Guide content (5 built-in languages) ---------- */
+const G = {
+en: { dir:"ltr", title:"User guide", sub:"Learn how to turn any audio or video into SRT subtitles in a few minutes.", done:"Got it, let's start", gtNote:"Translation opens in a new tab once the website is online.",
+ s:[
+  ["Quick start", ["<b>1.</b> Upload your audio or video file.","<b>2.</b> Click <b>Generate subtitles</b> and wait.","<b>3.</b> Check the text, then click <b>Download SRT</b>."]],
+  ["1. Upload your file", ["Click the upload box or drag a file onto it. MP3, WAV, M4A, OGG, FLAC, MP4, WEBM and more are supported.","Your file never leaves your device. Everything happens inside your browser.","No sign-up and no limits. Convert as many files as you like, free.","To use another file, click the ✕ next to the file name."]],
+  ["2. Automatic speech engine", ["You don't need to choose anything. The tool picks the best speech AI for your device: the most accurate one on computers and a lighter one on phones.", "It prepares itself quietly in the background. Only the very first conversion may wait a little while it gets ready; after that it starts right away.", "It detects the spoken language automatically (English, Bangla, Hindi, Arabic and 90+ more) and shows the language it found next to your subtitles."]],
+  ["3. Language (optional)", ["Leave it on <b>Auto-detect</b> for most files.", "If the result comes out in the wrong language, choose the spoken language under <b>Settings</b> and generate again."]],
+  ["4. Subtitle format", ["<b>Chars / line</b>: the most letters on one line. 42 is the standard for YouTube and TV.","<b>Lines</b>: lines per subtitle. Use 1 for Reels and Shorts, 2 for normal videos.","<b>Max sec</b>: the longest time one subtitle stays on screen.","<b>Remove sound tags</b>: deletes notes like [Music] or (laughs).","<b>UTF-8 BOM</b>: keep it on so Bangla and other languages show correctly in older players.","You can change these after converting. The subtitles rebuild instantly, with no need to convert again."]],
+  ["5. Generate subtitles", ["Click <b>Generate subtitles</b>. The bar shows the model download, then the transcription with the time elapsed.","Keep the tab open until it finishes. Click <b>Cancel</b> to stop.","Speed depends on your device. A computer is faster than a phone, and long files take longer."]],
+  ["6. Check and edit", ["Press play to see the subtitles in the black preview box. The current subtitle is highlighted.","Click a number (#1, #2…) to jump to that moment.","Click any text to fix words. Edit start and end times in this format: 00:00:01,500.","A <b>fast</b> warning means the subtitle may be too quick to read. Shorten the text or give it more time.","Use the trash icon to delete a subtitle. Use <b>Shift all timings</b> to move everything earlier (negative ms) or later (positive ms)."]],
+  ["7. Download", ["<b>Download SRT</b>: works with YouTube, Facebook, Premiere Pro, CapCut, DaVinci Resolve, VLC and most players.","<b>VTT</b>: for websites and HTML5 video. <b>TXT</b>: plain text transcript. <b>Copy SRT</b>: copies the subtitles to your clipboard."]],
+  ["Problems and fixes", ["<b>“No speech detected”</b>: choose the spoken language in Settings and try again.", "<b>Many mistakes</b>: choose the language in Settings and use clear audio without loud music.", "<b>Very slow on a phone</b>: use a computer for long files and close other tabs.", "<b>It can't get ready the first time</b>: check your internet. It is needed only the first time.", "Best browsers: the latest Chrome or Edge."]]
+ ]},
+bn: { dir:"ltr", title:"ব্যবহার নির্দেশিকা", sub:"কয়েক মিনিটে শিখে নিন কীভাবে যেকোনো অডিও বা ভিডিও থেকে SRT সাবটাইটেল বানাবেন।", done:"বুঝেছি, শুরু করি", gtNote:"ওয়েবসাইট অনলাইনে থাকলে অনুবাদ নতুন ট্যাবে খুলবে।",
+ s:[
+  ["দ্রুত শুরু", ["<b>১.</b> আপনার অডিও বা ভিডিও ফাইল আপলোড করুন।","<b>২.</b> <b>Generate subtitles</b> বাটনে ক্লিক করে অপেক্ষা করুন।","<b>৩.</b> লেখাগুলো দেখে নিন, তারপর <b>Download SRT</b> এ ক্লিক করুন।"]],
+  ["১. ফাইল আপলোড", ["আপলোড বক্সে ক্লিক করুন অথবা ফাইল টেনে এনে ছেড়ে দিন। MP3, WAV, M4A, OGG, FLAC, MP4, WEBM সহ আরও অনেক ফরম্যাট চলে।","আপনার ফাইল কোথাও আপলোড হয় না। সব কাজ আপনার ব্রাউজারের ভেতরেই হয়।","কোনো সাইন-আপ বা লিমিট নেই। যত খুশি ফাইল ফ্রিতে কনভার্ট করুন।","অন্য ফাইল নিতে চাইলে ফাইলের নামের পাশের ✕ চাপুন।"]],
+  ["২. স্বয়ংক্রিয় স্পিচ ইঞ্জিন", ["আপনাকে কিছুই বাছাই করতে হবে না। টুল নিজেই আপনার ডিভাইসের জন্য সেরা স্পিচ AI বেছে নেয়: কম্পিউটারে সবচেয়ে নির্ভুলটি, আর মোবাইলে হালকাটি।", "এটি ব্যাকগ্রাউন্ডে নিজে নিজে প্রস্তুত হয়। শুধু একদম প্রথমবার কনভার্ট করার সময় একটু অপেক্ষা লাগতে পারে, এরপর থেকে সাথে সাথে শুরু হয়।", "কোন ভাষায় কথা বলা হয়েছে তা টুল নিজেই বুঝে নেয় (বাংলা, ইংরেজি, হিন্দি, আরবি সহ ৯০+ ভাষা), এবং সাবটাইটেলের পাশে শনাক্ত করা ভাষার নাম দেখায়।"]],
+  ["৩. ভাষা (ঐচ্ছিক)", ["বেশিরভাগ ফাইলে <b>Auto-detect</b> রেখে দিন।", "ফলাফল ভুল ভাষায় এলে <b>Settings</b> থেকে যে ভাষায় কথা বলা হয়েছে সেটি বেছে নিয়ে আবার চালান।"]],
+  ["৪. সাবটাইটেল ফরম্যাট", ["<b>Chars / line</b>: এক লাইনে সর্বোচ্চ কত অক্ষর থাকবে। YouTube ও টিভির জন্য ৪২ স্ট্যান্ডার্ড।","<b>Lines</b>: একটি সাবটাইটেলে কয় লাইন থাকবে। Reels ও Shorts-এর জন্য ১, সাধারণ ভিডিওর জন্য ২।","<b>Max sec</b>: একটি সাবটাইটেল সর্বোচ্চ কত সেকেন্ড স্ক্রিনে থাকবে।","<b>Remove sound tags</b>: [Music] বা (laughs) এর মতো লেখা মুছে দেয়।","<b>UTF-8 BOM</b>: চালু রাখুন, যাতে পুরনো প্লেয়ারেও বাংলা ও অন্যান্য ভাষা ঠিকভাবে দেখায়।","কনভার্ট করার পরও এগুলো বদলাতে পারবেন। আবার কনভার্ট না করেই সাবটাইটেল সাথে সাথে নতুন করে সাজানো হবে।"]],
+  ["৫. সাবটাইটেল তৈরি", ["<b>Generate subtitles</b> এ ক্লিক করুন। প্রগ্রেস বারে প্রথমে মডেল ডাউনলোড, তারপর ট্রান্সক্রিপশন ও কত সময় গেল তা দেখাবে।","শেষ না হওয়া পর্যন্ত ট্যাবটি খোলা রাখুন। থামাতে চাইলে <b>Cancel</b> চাপুন।","গতি আপনার ডিভাইসের ওপর নির্ভর করে। মোবাইলের চেয়ে কম্পিউটারে দ্রুত হয়, আর বড় ফাইলে বেশি সময় লাগে।"]],
+  ["৬. দেখা ও এডিট", ["প্লে চাপলে কালো প্রিভিউ বক্সে সাবটাইটেল দেখা যাবে। চলতি সাবটাইটেলটি হাইলাইট থাকবে।","কোনো নম্বরে (#1, #2…) ক্লিক করলে অডিও সেই জায়গায় চলে যাবে।","যেকোনো লেখায় ক্লিক করে ভুল শব্দ ঠিক করুন। শুরু ও শেষের সময় এই ফরম্যাটে লিখুন: 00:00:01,500।","<b>fast</b> সতর্কতা মানে সাবটাইটেলটি পড়ার জন্য খুব দ্রুত। লেখা ছোট করুন বা সময় বাড়ান।","ট্র্যাশ আইকন দিয়ে সাবটাইটেল মুছুন। <b>Shift all timings</b> দিয়ে সব সাবটাইটেল আগে (মাইনাস ms) বা পরে (প্লাস ms) সরান।"]],
+  ["৭. ডাউনলোড", ["<b>Download SRT</b>: YouTube, Facebook, Premiere Pro, CapCut, DaVinci Resolve, VLC সহ বেশিরভাগ প্লেয়ারে চলে।","<b>VTT</b>: ওয়েবসাইট ও HTML5 ভিডিওর জন্য। <b>TXT</b>: শুধু লেখা। <b>Copy SRT</b>: সাবটাইটেল ক্লিপবোর্ডে কপি করে।"]],
+  ["সমস্যা ও সমাধান", ["<b>“No speech detected”</b>: Settings থেকে ভাষা বেছে দিয়ে আবার চেষ্টা করুন।", "<b>অনেক ভুল হলে</b>: Settings থেকে ভাষা বেছে দিন, আর জোরে মিউজিক ছাড়া পরিষ্কার অডিও ব্যবহার করুন।", "<b>মোবাইলে খুব ধীর হলে</b>: বড় ফাইলের জন্য কম্পিউটার ব্যবহার করুন, অন্য ট্যাবগুলো বন্ধ করুন।", "<b>প্রথমবার প্রস্তুত হতে না পারলে</b>: ইন্টারনেট চেক করুন। শুধু প্রথমবার ইন্টারনেট লাগে।", "সেরা ব্রাউজার: Chrome বা Edge এর সর্বশেষ ভার্সন।"]]
+ ]},
+hi: { dir:"ltr", title:"उपयोग गाइड", sub:"कुछ ही मिनटों में सीखें कि किसी भी ऑडियो या वीडियो से SRT सबटाइटल कैसे बनाएं।", done:"समझ गया, शुरू करें", gtNote:"वेबसाइट ऑनलाइन होने पर अनुवाद नए टैब में खुलेगा।",
+ s:[
+  ["जल्दी शुरू करें", ["<b>1.</b> अपनी ऑडियो या वीडियो फ़ाइल अपलोड करें।","<b>2.</b> <b>Generate subtitles</b> पर क्लिक करें और इंतज़ार करें।","<b>3.</b> टेक्स्ट जांचें, फिर <b>Download SRT</b> पर क्लिक करें।"]],
+  ["1. फ़ाइल अपलोड करें", ["अपलोड बॉक्स पर क्लिक करें या फ़ाइल खींचकर उसमें छोड़ें। MP3, WAV, M4A, OGG, FLAC, MP4, WEBM और कई फ़ॉर्मेट चलते हैं।","आपकी फ़ाइल कहीं अपलोड नहीं होती। सारा काम आपके ब्राउज़र के अंदर होता है।","कोई साइन-अप या सीमा नहीं। जितनी चाहें उतनी फ़ाइलें मुफ़्त में बदलें।","दूसरी फ़ाइल लेनी हो तो फ़ाइल के नाम के पास ✕ दबाएं।"]],
+  ["2. ऑटोमैटिक स्पीच इंजन", ["आपको कुछ चुनने की ज़रूरत नहीं। टूल खुद आपके डिवाइस के लिए सबसे अच्छा स्पीच AI चुनता है: कंप्यूटर पर सबसे सटीक, और मोबाइल पर हल्का।", "यह बैकग्राउंड में अपने आप तैयार हो जाता है। सिर्फ़ सबसे पहली बार थोड़ा इंतज़ार हो सकता है, उसके बाद तुरंत शुरू होता है।", "बोली गई भाषा को टूल अपने आप पहचानता है (हिंदी, अंग्रेज़ी, बांग्ला, अरबी समेत 90+ भाषाएं) और सबटाइटल के पास पहचानी गई भाषा दिखाता है।"]],
+  ["3. भाषा (वैकल्पिक)", ["ज़्यादातर फ़ाइलों के लिए <b>Auto-detect</b> ही रहने दें।", "अगर नतीजा गलत भाषा में आए, तो <b>Settings</b> में बोली गई भाषा चुनें और फिर से चलाएं।"]],
+  ["4. सबटाइटल फ़ॉर्मेट", ["<b>Chars / line</b>: एक लाइन में अधिकतम अक्षर। YouTube और टीवी के लिए 42 मानक है।","<b>Lines</b>: एक सबटाइटल में कितनी लाइनें। Reels और Shorts के लिए 1, सामान्य वीडियो के लिए 2।","<b>Max sec</b>: एक सबटाइटल स्क्रीन पर अधिकतम कितने सेकंड रहेगा।","<b>Remove sound tags</b>: [Music] या (laughs) जैसे नोट हटा देता है।","<b>UTF-8 BOM</b>: इसे चालू रखें ताकि पुराने प्लेयर में भी हिंदी और दूसरी भाषाएं सही दिखें।","कन्वर्ट करने के बाद भी इन्हें बदल सकते हैं। दोबारा कन्वर्ट किए बिना सबटाइटल तुरंत नए सिरे से बन जाते हैं।"]],
+  ["5. सबटाइटल बनाएं", ["<b>Generate subtitles</b> पर क्लिक करें। बार पहले मॉडल डाउनलोड, फिर ट्रांसक्रिप्शन और बीता हुआ समय दिखाता है।","पूरा होने तक टैब खुला रखें। रोकने के लिए <b>Cancel</b> दबाएं।","गति आपके डिवाइस पर निर्भर करती है। कंप्यूटर मोबाइल से तेज़ है, और लंबी फ़ाइलों में ज़्यादा समय लगता है।"]],
+  ["6. जांचें और एडिट करें", ["प्ले दबाएं, काले प्रीव्यू बॉक्स में सबटाइटल दिखेंगे। चल रहा सबटाइटल हाइलाइट रहेगा।","किसी नंबर (#1, #2…) पर क्लिक करें, ऑडियो उसी जगह पहुंच जाएगा।","किसी भी टेक्स्ट पर क्लिक करके शब्द ठीक करें। शुरू और खत्म का समय इस फ़ॉर्मेट में लिखें: 00:00:01,500।","<b>fast</b> चेतावनी का मतलब है कि सबटाइटल पढ़ने के लिए बहुत तेज़ है। टेक्स्ट छोटा करें या समय बढ़ाएं।","ट्रैश आइकन से सबटाइटल हटाएं। <b>Shift all timings</b> से सब कुछ पहले (माइनस ms) या बाद में (प्लस ms) करें।"]],
+  ["7. डाउनलोड", ["<b>Download SRT</b>: YouTube, Facebook, Premiere Pro, CapCut, DaVinci Resolve, VLC और ज़्यादातर प्लेयर में चलता है।","<b>VTT</b>: वेबसाइट और HTML5 वीडियो के लिए। <b>TXT</b>: सिर्फ़ टेक्स्ट। <b>Copy SRT</b>: सबटाइटल क्लिपबोर्ड पर कॉपी करता है।"]],
+  ["समस्याएं और समाधान", ["<b>“No speech detected”</b>: Settings में भाषा चुनें और फिर से कोशिश करें।", "<b>बहुत गलतियां</b>: Settings में भाषा चुनें, और तेज़ संगीत के बिना साफ़ ऑडियो इस्तेमाल करें।", "<b>मोबाइल पर बहुत धीमा</b>: लंबी फ़ाइलों के लिए कंप्यूटर इस्तेमाल करें, बाकी टैब बंद करें।", "<b>पहली बार तैयार नहीं हो पा रहा</b>: इंटरनेट जांचें। इसकी ज़रूरत सिर्फ़ पहली बार होती है।", "सबसे अच्छे ब्राउज़र: Chrome या Edge का नया वर्ज़न।"]]
+ ]},
+ar: { dir:"rtl", title:"دليل الاستخدام", sub:"تعلّم في دقائق كيف تحوّل أي ملف صوتي أو فيديو إلى ترجمة SRT.", done:"فهمت، لنبدأ", gtNote:"ستفتح الترجمة في علامة تبويب جديدة عندما يكون الموقع متاحًا على الإنترنت.",
+ s:[
+  ["بداية سريعة", ["<b>1.</b> ارفع ملف الصوت أو الفيديو.","<b>2.</b> اضغط <b>Generate subtitles</b> وانتظر.","<b>3.</b> راجع النص، ثم اضغط <b>Download SRT</b>."]],
+  ["1. رفع الملف", ["اضغط على مربع الرفع أو اسحب الملف وأفلته فيه. يدعم MP3 وWAV وM4A وOGG وFLAC وMP4 وWEBM وغيرها.","لا يُرفع ملفك إلى أي مكان. كل شيء يتم داخل متصفحك.","بدون تسجيل وبدون حدود. حوّل ما تشاء من الملفات مجانًا.","لاختيار ملف آخر، اضغط ✕ بجانب اسم الملف."]],
+  ["2. محرك الكلام التلقائي", ["لا تحتاج إلى اختيار أي شيء. تختار الأداة تلقائيًا أفضل ذكاء اصطناعي للكلام لجهازك: الأدق على الكمبيوتر، والأخف على الهاتف.", "يستعد المحرك بهدوء في الخلفية. قد تنتظر قليلًا في أول تحويل فقط، وبعدها يبدأ فورًا.", "تكتشف الأداة اللغة المنطوقة تلقائيًا (العربية والإنجليزية والبنغالية والهندية وأكثر من 90 لغة)، وتعرض اسم اللغة المكتشفة بجانب الترجمة."]],
+  ["3. اللغة (اختياري)", ["اترك الخيار على <b>Auto-detect</b> لمعظم الملفات.", "إذا ظهرت النتيجة بلغة خاطئة، اختر اللغة المنطوقة من <b>Settings</b> وأعد التحويل."]],
+  ["4. تنسيق الترجمة", ["<b>Chars / line</b>: أقصى عدد من الحروف في السطر. الرقم 42 هو المعيار ليوتيوب والتلفاز.","<b>Lines</b>: عدد الأسطر في كل ترجمة. استخدم 1 للريلز والشورتس، و2 للفيديوهات العادية.","<b>Max sec</b>: أطول مدة تبقى فيها الترجمة على الشاشة.","<b>Remove sound tags</b>: يحذف ملاحظات مثل [Music] أو (laughs).","<b>UTF-8 BOM</b>: اتركه مفعّلًا لتظهر العربية واللغات الأخرى بشكل صحيح في المشغلات القديمة.","يمكنك تغيير هذه الإعدادات بعد التحويل، وتُعاد بناء الترجمة فورًا دون تحويل جديد."]],
+  ["5. إنشاء الترجمة", ["اضغط <b>Generate subtitles</b>. يعرض الشريط تحميل النموذج ثم التفريغ مع الوقت المنقضي.","أبقِ علامة التبويب مفتوحة حتى ينتهي. اضغط <b>Cancel</b> للإيقاف.","تعتمد السرعة على جهازك؛ الكمبيوتر أسرع من الهاتف، والملفات الطويلة تحتاج وقتًا أطول."]],
+  ["6. المراجعة والتعديل", ["اضغط تشغيل لترى الترجمة في مربع المعاينة الأسود، مع تمييز الترجمة الحالية.","اضغط على رقم (#1، #2…) للانتقال إلى تلك اللحظة.","اضغط على أي نص لتصحيح الكلمات. عدّل وقت البداية والنهاية بهذا الشكل: 00:00:01,500.","تحذير <b>fast</b> يعني أن الترجمة سريعة جدًا للقراءة؛ اختصر النص أو أطل الوقت.","استخدم أيقونة الحذف لحذف ترجمة. واستخدم <b>Shift all timings</b> لتقديم كل شيء (ms بالسالب) أو تأخيره (ms بالموجب)."]],
+  ["7. التنزيل", ["<b>Download SRT</b>: يعمل مع يوتيوب وفيسبوك وPremiere Pro وCapCut وDaVinci Resolve وVLC ومعظم المشغلات.","<b>VTT</b>: للمواقع وفيديو HTML5. <b>TXT</b>: نص فقط. <b>Copy SRT</b>: ينسخ الترجمة إلى الحافظة."]],
+  ["مشكلات وحلول", ["<b>“No speech detected”</b>: اختر اللغة من Settings وحاول مرة أخرى.", "<b>أخطاء كثيرة</b>: اختر اللغة من Settings، واستخدم صوتًا واضحًا دون موسيقى عالية.", "<b>بطء شديد على الهاتف</b>: استخدم الكمبيوتر للملفات الطويلة، وأغلق علامات التبويب الأخرى.", "<b>تعذّر التجهيز في المرة الأولى</b>: تحقق من الإنترنت؛ فهو مطلوب في المرة الأولى فقط.", "أفضل المتصفحات: أحدث إصدار من Chrome أو Edge."]]
+ ]},
+es: { dir:"ltr", title:"Guía de uso", sub:"Aprende en pocos minutos a convertir cualquier audio o vídeo en subtítulos SRT.", done:"Entendido, empecemos", gtNote:"La traducción se abrirá en una pestaña nueva cuando el sitio esté en línea.",
+ s:[
+  ["Inicio rápido", ["<b>1.</b> Sube tu archivo de audio o vídeo.","<b>2.</b> Haz clic en <b>Generate subtitles</b> y espera.","<b>3.</b> Revisa el texto y haz clic en <b>Download SRT</b>."]],
+  ["1. Sube tu archivo", ["Haz clic en el cuadro de carga o arrastra un archivo encima. Admite MP3, WAV, M4A, OGG, FLAC, MP4, WEBM y más.","Tu archivo nunca sale de tu dispositivo. Todo ocurre dentro de tu navegador.","Sin registro y sin límites. Convierte todos los archivos que quieras, gratis.","Para usar otro archivo, haz clic en la ✕ junto al nombre."]],
+  ["2. Motor de voz automático", ["No tienes que elegir nada. La herramienta elige la mejor IA de voz para tu dispositivo: la más precisa en ordenadores y una más ligera en móviles.", "Se prepara sola en segundo plano. Solo la primera conversión puede esperar un poco; después empieza al instante.", "Detecta automáticamente el idioma hablado (español, inglés, bengalí, hindi, árabe y más de 90 idiomas) y muestra el idioma detectado junto a los subtítulos."]],
+  ["3. Idioma (opcional)", ["Deja <b>Auto-detect</b> para la mayoría de archivos.", "Si el resultado sale en otro idioma, elige el idioma hablado en <b>Settings</b> y vuelve a generar."]],
+  ["4. Formato de subtítulos", ["<b>Chars / line</b>: máximo de caracteres por línea. 42 es el estándar para YouTube y TV.","<b>Lines</b>: líneas por subtítulo. Usa 1 para Reels y Shorts, 2 para vídeos normales.","<b>Max sec</b>: tiempo máximo que un subtítulo permanece en pantalla.","<b>Remove sound tags</b>: elimina notas como [Music] o (laughs).","<b>UTF-8 BOM</b>: déjalo activado para que los acentos y otros idiomas se vean bien en reproductores antiguos.","Puedes cambiar esto después de convertir. Los subtítulos se rehacen al instante, sin volver a convertir."]],
+  ["5. Genera los subtítulos", ["Haz clic en <b>Generate subtitles</b>. La barra muestra la descarga del modelo y luego la transcripción con el tiempo transcurrido.","Mantén la pestaña abierta hasta que termine. Pulsa <b>Cancel</b> para detener.","La velocidad depende de tu dispositivo: un ordenador es más rápido que un móvil, y los archivos largos tardan más."]],
+  ["6. Revisa y edita", ["Pulsa reproducir para ver los subtítulos en el recuadro negro. El subtítulo actual se resalta.","Haz clic en un número (#1, #2…) para saltar a ese momento.","Haz clic en cualquier texto para corregirlo. Edita los tiempos con este formato: 00:00:01,500.","El aviso <b>fast</b> indica que el subtítulo va demasiado rápido para leerlo. Acorta el texto o dale más tiempo.","Usa la papelera para borrar un subtítulo. Usa <b>Shift all timings</b> para adelantar todo (ms negativos) o retrasarlo (ms positivos)."]],
+  ["7. Descarga", ["<b>Download SRT</b>: funciona con YouTube, Facebook, Premiere Pro, CapCut, DaVinci Resolve, VLC y la mayoría de reproductores.","<b>VTT</b>: para webs y vídeo HTML5. <b>TXT</b>: solo texto. <b>Copy SRT</b>: copia los subtítulos al portapapeles."]],
+  ["Problemas y soluciones", ["<b>“No speech detected”</b>: elige el idioma en Settings y vuelve a intentarlo.", "<b>Muchos errores</b>: elige el idioma en Settings y usa audio claro sin música alta.", "<b>Muy lento en el móvil</b>: usa un ordenador para archivos largos y cierra otras pestañas.", "<b>No se prepara la primera vez</b>: revisa tu conexión. Solo se necesita la primera vez.", "Mejores navegadores: la última versión de Chrome o Edge."]]
+ ]}
+};
+
+const ov = document.getElementById("guide"), body = document.getElementById("gBody"),
+      sel = document.getElementById("gLang"), done = document.getElementById("gDone"),
+      title = document.getElementById("gTitle"), panel = ov.querySelector(".g-panel");
+const st = { get:k=>{try{return localStorage.getItem(k)}catch{return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}} };
+
+function guess(){
+  const saved = st.get("a2s_guide_lang"); if (saved && G[saved]) return saved;
+  const nav = (navigator.language || "en").slice(0,2);
+  return G[nav] ? nav : "en";
+}
+function render(code){
+  const g = G[code] || G.en;
+  panel.dir = g.dir; panel.lang = code;
+  title.textContent = g.title;
+  done.textContent = g.done;
+  body.innerHTML = `<p class="g-sub">${g.sub}</p>` + g.s.map(([h, items], i) =>
+    `<section class="g-sec${i===0?" g-quick":""}"><h3>${h}</h3><ul>${items.map(t=>`<li>${t}</li>`).join("")}</ul></section>`).join("");
+  body.scrollTop = 0;
+}
+let lastFocus = null;
+function open(){ lastFocus = document.activeElement; const c = guess(); sel.value = c; render(c); ov.hidden = false; document.body.style.overflow = "hidden"; setTimeout(()=>sel.focus(), 50); }
+function close(){ ov.hidden = true; document.body.style.overflow = ""; st.set("a2s_guide_seen","1"); if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+
+sel.addEventListener("change", () => {
+  const v = sel.value;
+  if (v.startsWith("gt:")) {
+    const tl = v.slice(3), cur = sel.dataset.cur || "en";
+    sel.value = cur;
+    if (!/^https?:$/.test(location.protocol) || /^(localhost|127\.|0\.0\.0\.0)/.test(location.hostname)) {
+      body.insertAdjacentHTML("afterbegin", `<p class="g-note">${(G[cur]||G.en).gtNote}</p>`); return;
+    }
+    const url = "https://translate.google.com/translate?sl=en&tl=" + encodeURIComponent(tl) + "&u=" + encodeURIComponent(location.origin + location.pathname + "#guide");
+    window.open(url, "_blank", "noopener");
+    return;
+  }
+  sel.dataset.cur = v; st.set("a2s_guide_lang", v); render(v);
+});
+sel.dataset.cur = guess();
+
+document.querySelectorAll("[data-open-guide]").forEach(b => b.addEventListener("click", open));
+document.getElementById("gClose").addEventListener("click", close);
+done.addEventListener("click", close);
+ov.addEventListener("click", e => { if (e.target === ov) close(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !ov.hidden) close(); });
+
+// open automatically on the first visit, or when the link ends with #guide
+if (location.hash === "#guide" || !st.get("a2s_guide_seen")) open();
+</script>
+
+</body>
+</html>
